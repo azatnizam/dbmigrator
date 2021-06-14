@@ -48,3 +48,15 @@ migrations/
 ├── db.conf
 └── last.log
 ```
+
+## Структура db.conf
+
+Пример конфига для dev среды
+```
+#!/bin/bash
+
+# Dev env
+DB_NAME='db'
+DB_USER='user'
+DB_PASS='pass'
+```
