@@ -1,0 +1,42 @@
+#!/bin/bash
+
+# up or down
+DIRECTION=$1
+
+# Number (0001)
+MIGRATION=$2
+
+# Includ config to DB connection
+#### Config format ####
+# Place the config "db.conf" near migrator script
+# DB_NAME='db'
+# DB_USER='user'
+# DB_PASS='pass'
+#### Config example END ####
+ABSOLUTE_FILENAME=`readlink -e "$0"`
+SCRIPT_DIRECTORY=`dirname "$ABSOLUTE_FILENAME"`
+CONF_FILE=$SCRIPT_DIRECTORY'/db.conf'
+
+if [ -f $CONF_FILE ]
+then
+    . $CONF_FILE
+fi
+
+SQL_FILE=$SCRIPT_DIRECTORY'/'$DIRECTION'/'$MIGRATION'.sql'
+
+if [ -f $SQL_FILE ]
+then
+    mysql --host=localhost --user=$DB_USER --database=$DB_NAME --password=$DB_PASS < $SQL_FILE 2>/dev/null
+
+    if [ $? -eq 0 ]
+    then
+        echo 'migration' $DIRECTION':'$MIGRATION 'successful'
+        echo $(date +%Y-%m-%d\ %H:%M:%S) $DIRECTION':'$MIGRATION 'successful' > $SCRIPT_DIRECTORY'/last.log'
+    else
+        echo 'migration' $DIRECTION':'$MIGRATION 'failed'
+        echo $(date +%Y-%m-%d\ %H:%M:%S) $DIRECTION':'$MIGRATION 'failed' > $SCRIPT_DIRECTORY'/last.log'
+    fi
+else
+    echo 'migration' $DIRECTION':'$MIGRATION 'is not exist'
+fi
+
